@@ -2,10 +2,9 @@ package com.accenture.accountservice.model.entities;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Random;
 
 @Entity
-@Table(name = "account")
+@Table(name = "accounts")
 public class Account {
 
     @Id
@@ -23,10 +22,19 @@ public class Account {
     private String cbu;
 
     @Column
-    private Long userID;
+    private Long userId;
+
+    @Column(nullable = false)
+    private Boolean isEnabled;
 
     public Account() {
+        this(null);
+    }
+
+    public Account(Long userId) {
         super();
+        this.userId = userId;
+        this.funds = new BigDecimal(0);
     }
 
     public Long getId() {
@@ -61,12 +69,20 @@ public class Account {
         this.cbu = cbu;
     }
 
-    public Long getUserID() {
-        return userID;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUserID(Long userID) {
-        this.userID = userID;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Boolean getEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
     }
 
     @Override
@@ -76,7 +92,7 @@ public class Account {
                 ", numberAccount='" + numberAccount + '\'' +
                 ", funds=" + funds +
                 ", cbu='" + cbu + '\'' +
-                ", userID=" + userID +
+                ", userID=" + userId +
                 '}';
     }
 }

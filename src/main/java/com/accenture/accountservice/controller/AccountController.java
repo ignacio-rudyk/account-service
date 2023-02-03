@@ -1,30 +1,34 @@
 package com.accenture.accountservice.controller;
 
+import com.accenture.accountservice.model.ErrorResponse;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/account")
 public interface AccountController {
 
-    @PostMapping(value = "/createAccount")
-    ResponseEntity<AccountDTO> createAccount();
+    /*@PostMapping(value = "/saveAccount")
+    ResponseEntity<ErrorResponse> saveAccount(@RequestBody AccountDTO account);*/
 
-    @PostMapping(value = "/createAccount/{id}")
-    ResponseEntity<AccountDTO> createAccountByIdUser(@PathVariable(name = "id") Long idUser);
+    @PostMapping(value = "/createAccount/{userId}")
+    ResponseEntity<ErrorResponse> createAccount(@PathVariable(name = "userId") Long userId);
 
     @DeleteMapping("/removeAccount/{id}")
-    ResponseEntity<String> removeAccount(@PathVariable(name = "id") Long id);
+    ResponseEntity<ErrorResponse> removeAccount(@PathVariable(name = "id") Long id);
+
+    @DeleteMapping("/removeAccountsByUserId/{userId}")
+    ResponseEntity<ErrorResponse> removeAccountsByUserId(@PathVariable(name = "userId") Long userId);
 
     @GetMapping("/getAccount/{id}")
-    ResponseEntity<AccountDTO> getAccount(@PathVariable(name = "id") Long id);
+    ResponseEntity<ErrorResponse> getAccount(@PathVariable(name = "id") Long id);
 
     @GetMapping("/existAccount/{id}")
-    ResponseEntity<Boolean> existAccount(@PathVariable(name = "id") Long id);
+    ResponseEntity<ErrorResponse> existAccount(@PathVariable(name = "id") Long id);
 
     @GetMapping("/list")
-    ResponseEntity<List<AccountDTO>> list();
+    ResponseEntity<ErrorResponse> list();
+
+    @GetMapping("/getListByUserId/{userId}")
+    ResponseEntity<ErrorResponse> getListByUserId(@PathVariable(name = "userId") Long userId);
 }

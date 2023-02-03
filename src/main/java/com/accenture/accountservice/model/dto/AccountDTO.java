@@ -12,10 +12,18 @@ public class AccountDTO {
 
     private String cbu;
 
-    private Long userID;
+    private Long userId;
+
+    private Boolean isEnabled;
 
     public AccountDTO() {
+        this(null);
+    }
+
+    public AccountDTO(Long userID) {
         super();
+        this.userId = userID;
+        this.funds = new BigDecimal(0);
     }
 
     public Long getId() {
@@ -50,12 +58,20 @@ public class AccountDTO {
         this.cbu = cbu;
     }
 
-    public Long getUserID() {
-        return userID;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUserID(Long userID) {
-        this.userID = userID;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Boolean getEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
     }
 
     @Override
@@ -65,7 +81,7 @@ public class AccountDTO {
                 ", numberAccount='" + numberAccount + '\'' +
                 ", funds=" + funds +
                 ", cbu='" + cbu + '\'' +
-                ", userID=" + userID +
+                ", userID=" + userId +
                 '}';
     }
 }
