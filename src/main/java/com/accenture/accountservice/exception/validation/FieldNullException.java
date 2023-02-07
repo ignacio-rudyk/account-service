@@ -1,4 +1,6 @@
-package com.accenture.accountservice.exception;
+package com.accenture.accountservice.exception.validation;
+
+import com.accenture.accountservice.exception.ValidationException;
 
 public class FieldNullException extends ValidationException {
 

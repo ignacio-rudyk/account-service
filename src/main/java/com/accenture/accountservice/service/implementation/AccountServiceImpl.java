@@ -2,22 +2,23 @@ package com.accenture.accountservice.service.implementation;
 
 import com.accenture.accountservice.dao.AccountDAO;
 import com.accenture.accountservice.exception.*;
-import com.accenture.accountservice.model.ErrorResponse;
+import com.accenture.accountservice.exception.validation.AccountInNegativeException;
+import com.accenture.accountservice.exception.validation.AmountNegativeException;
+import com.accenture.accountservice.exception.validation.AmountPositiveException;
+import com.accenture.accountservice.exception.validation.FieldNullException;
 import com.accenture.accountservice.model.dto.AccountDTO;
+import com.accenture.accountservice.model.dto.SendingOfMoney;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
 import com.accenture.accountservice.model.entities.Account;
 import com.accenture.accountservice.service.AccountService;
+import com.accenture.accountservice.service.UserService;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.*;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,34 +33,65 @@ public class AccountServiceImpl implements AccountService {
     private Mapper mapper;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private UserService userService;
 
-    @Value("${user.service.server.port}")
-    private String userServicePort;
 
-    /*@Override
-    public AccountDTO saveAccount(AccountDTO newAccount) throws AccountServiceException, AccountDAOException {
-        if(newAccount != null){
-            try{
-                Account account = mapper.map(newAccount, Account.class);
-                account.setEnabled(accountIsEnabled(newAccount));
-                account = accountDAO.save(account);
-                return mapper.map(account, AccountDTO.class);
-            } catch (DataAccessException e) {
-                throw new AccountDAOException();
-            } catch (AccountServiceException e) {
-                throw e;
-            } catch (Throwable t) {
-                throw t;
+    @Override
+    public SendingOfMoney addAmount(SendingOfMoney sendingOfMoney) throws AccountServiceException, AccountDAOException {
+        try{
+            BigDecimal amount = new BigDecimal(sendingOfMoney.getAmount());
+            if(amount.compareTo(new BigDecimal(0)) <= 0) {
+                throw new AmountNegativeException();
             }
-        } else {
-            throw new FieldNullException();
+            Optional<Account> result = accountDAO.findByCbu(sendingOfMoney.getCbuDestination());
+            if(!result.isEmpty()){
+                Account account = result.get();
+                if(account.getEnabled()) {
+                    account.addFunds(amount);
+                    accountDAO.save(account);
+                    return sendingOfMoney;
+                }
+            }
+            throw new AccountInexistentException();
+        } catch (DataAccessException e) {
+            throw new AccountDAOException();
+        } catch (AccountServiceException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw t;
         }
-    }*/
+    }
+
+    @Override
+    public WithdrawalOfMoney subtractAmount(WithdrawalOfMoney withdrawalOfMoney) throws AccountServiceException, AccountDAOException {
+        try{
+            BigDecimal amount = new BigDecimal(withdrawalOfMoney.getAmount());
+            if(amount.compareTo(new BigDecimal(0)) >= 0) {
+                throw new AmountPositiveException();
+            }
+            Optional<Account> result = accountDAO.findByNumberAccount(withdrawalOfMoney.getNumberAccount());
+            if(!result.isEmpty()){
+                Account account = result.get();
+                if(account.getEnabled()) {
+                    account.subtractFunds(amount.negate());
+                    validateAccountData(account);
+                    accountDAO.save(account);
+                    return withdrawalOfMoney;
+                }
+            }
+            throw new AccountInexistentException();
+        } catch (DataAccessException e) {
+            throw new AccountDAOException();
+        } catch (AccountServiceException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw t;
+        }
+    }
 
     @Override
     public AccountDTO createAccount(Long userId) throws AccountServiceException, AccountDAOException {
-        if(existUser(userId)) {
+        if(userService.existUser(userId)) {
             try {
                 Account newAccount = new Account(userId);
                 newAccount.setNumberAccount("00"+createSequenceOfNumbers(8));
@@ -130,6 +162,36 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Boolean existAccountByNumberAccount(String numberAccount) throws AccountServiceException {
+        if(numberAccount == null) {
+            throw new FieldNullException();
+        }
+        if(accountDAO.existsByNumberAccount(numberAccount)) {
+            Optional<Account> result = accountDAO.findByNumberAccount(numberAccount);
+            if(!result.isEmpty()){
+                Account accountFound = result.get();
+                return accountFound.getEnabled();
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public Boolean existAccountByCbu(String cbu) throws AccountServiceException {
+        if(cbu == null) {
+            throw new FieldNullException();
+        }
+        if(accountDAO.existsByCbu(cbu)) {
+            Optional<Account> result = accountDAO.findByCbu(cbu);
+            if(!result.isEmpty()){
+                Account accountFound = result.get();
+                return accountFound.getEnabled();
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    @Override
     public List<AccountDTO> list() {
         List<Account> list = (List<Account>) accountDAO.findAll();
         return list.stream()
@@ -155,46 +217,11 @@ public class AccountServiceImpl implements AccountService {
         return cbu;
     }
 
-    private Boolean accountIsEnabled(AccountDTO account) throws AccountServiceException {
-        try {
-            if(existsById(account.getId())){
-                AccountDTO accountFound = findById(account.getId());
-                return accountFound.getEnabled();
-            } else {
-                return Boolean.TRUE;
-            }
-        } catch (FieldNullException e){
-            return Boolean.TRUE;
+    private void validateAccountData(Account account) throws AccountInNegativeException {
+        BigDecimal numberZero = new BigDecimal(0);
+        if(account.getFunds().compareTo(numberZero) < 0) {
+            throw new AccountInNegativeException();
         }
-    }
-
-    private Boolean existUser(Long userId) throws AccountServiceException {
-        try{
-            String url = "http://localhost:" + userServicePort + "/user/existUser/" + userId;
-            restTemplate.setMessageConverters(getJsonMessageConverters());
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
-            ResponseEntity<ErrorResponse> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ErrorResponse.class);
-            ErrorResponse errorResponse = responseEntity.getBody();
-            if(responseEntity.getStatusCode().equals(HttpStatus.OK)){
-                if(errorResponse.getCode() == 0){
-                    return (Boolean) errorResponse.getData();
-                } else {
-                    throw new AccountServiceException(errorResponse.getDesc(), errorResponse.getCode());
-                }
-            } else {
-                throw new AccountServiceException(errorResponse.getDesc(), errorResponse.getCode());
-            }
-        } catch (Throwable t) {
-            throw t;
-        }
-    }
-
-    private List<HttpMessageConverter<?>> getJsonMessageConverters() {
-        List<HttpMessageConverter<?>> converters = new ArrayList<>();
-        converters.add(new MappingJackson2HttpMessageConverter());
-        return converters;
     }
 
 }

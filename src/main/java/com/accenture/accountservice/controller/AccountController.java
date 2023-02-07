@@ -1,15 +1,19 @@
 package com.accenture.accountservice.controller;
 
 import com.accenture.accountservice.model.ErrorResponse;
-import com.accenture.accountservice.model.dto.AccountDTO;
+import com.accenture.accountservice.model.dto.SendingOfMoney;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping(value = "/account")
 public interface AccountController {
 
-    /*@PostMapping(value = "/saveAccount")
-    ResponseEntity<ErrorResponse> saveAccount(@RequestBody AccountDTO account);*/
+    @PutMapping(value = "/addAmount")
+    ResponseEntity<ErrorResponse> addAmount(@RequestBody SendingOfMoney sendingOfMoney);
+
+    @PutMapping(value = "/subtractAmount")
+    ResponseEntity<ErrorResponse> subtractAmount(@RequestBody WithdrawalOfMoney withdrawalOfMoney);
 
     @PostMapping(value = "/createAccount/{userId}")
     ResponseEntity<ErrorResponse> createAccount(@PathVariable(name = "userId") Long userId);
@@ -26,9 +30,16 @@ public interface AccountController {
     @GetMapping("/existAccount/{id}")
     ResponseEntity<ErrorResponse> existAccount(@PathVariable(name = "id") Long id);
 
+    @GetMapping("/existAccountByNumberAccount/{numberAccount}")
+    ResponseEntity<ErrorResponse> existAccountByNumberAccount(@PathVariable(name = "numberAccount") String numberAccount);
+
+    @GetMapping("/existAccountByCbu/{cbu}")
+    ResponseEntity<ErrorResponse> existAccountByCbu(@PathVariable(name = "cbu") String cbu);
+
     @GetMapping("/list")
     ResponseEntity<ErrorResponse> list();
 
     @GetMapping("/getListByUserId/{userId}")
     ResponseEntity<ErrorResponse> getListByUserId(@PathVariable(name = "userId") Long userId);
+
 }

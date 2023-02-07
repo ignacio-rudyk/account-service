@@ -6,11 +6,12 @@ import com.accenture.accountservice.exception.AccountServiceException;
 import com.accenture.accountservice.exception.ValidationException;
 import com.accenture.accountservice.model.ErrorResponse;
 import com.accenture.accountservice.model.dto.AccountDTO;
+import com.accenture.accountservice.model.dto.SendingOfMoney;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
 import com.accenture.accountservice.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,20 +22,35 @@ public class AccountControllerImpl implements AccountController {
     @Autowired
     private AccountService accountService;
 
-    /*@Override
-    public ResponseEntity<ErrorResponse> saveAccount(AccountDTO accountModify) {
+    @Override
+    public ResponseEntity<ErrorResponse> addAmount(SendingOfMoney sendingOfMoney) {
         try{
-            AccountDTO accountSaved = accountService.saveAccount(accountModify);
-            ErrorResponse errorResponse = new ErrorResponse(accountSaved);
-            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.CREATED);
+            sendingOfMoney = accountService.addAmount(sendingOfMoney);
+            ErrorResponse errorResponse = new ErrorResponse(sendingOfMoney);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
         } catch (ValidationException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }*/
+    }
+
+    @Override
+    public ResponseEntity<ErrorResponse> subtractAmount(WithdrawalOfMoney withdrawalOfMoney) {
+        try{
+            withdrawalOfMoney = accountService.subtractAmount(withdrawalOfMoney);
+            ErrorResponse errorResponse = new ErrorResponse(withdrawalOfMoney);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
+        } catch (ValidationException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (AccountServiceException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Throwable e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Override
     public ResponseEntity<ErrorResponse> createAccount(Long userId) {
@@ -47,9 +63,8 @@ public class AccountControllerImpl implements AccountController {
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @Override
@@ -65,7 +80,7 @@ public class AccountControllerImpl implements AccountController {
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,7 +93,7 @@ public class AccountControllerImpl implements AccountController {
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,9 +110,8 @@ public class AccountControllerImpl implements AccountController {
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @Override
@@ -111,9 +125,38 @@ public class AccountControllerImpl implements AccountController {
         } catch (AccountServiceException e) {
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
+    @Override
+    public ResponseEntity<ErrorResponse> existAccountByNumberAccount(String numberAccount) {
+        try {
+            Boolean existAccount = accountService.existAccountByNumberAccount(numberAccount);
+            ErrorResponse errorResponse = new ErrorResponse(existAccount);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
+        } catch (ValidationException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (AccountServiceException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Throwable e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<ErrorResponse> existAccountByCbu(String cbu) {
+        try {
+            Boolean existAccount = accountService.existAccountByCbu(cbu);
+            ErrorResponse errorResponse = new ErrorResponse(existAccount);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
+        } catch (ValidationException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (AccountServiceException e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Throwable e) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
@@ -124,7 +167,7 @@ public class AccountControllerImpl implements AccountController {
             ResponseEntity<ErrorResponse> response = new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
             return response;
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -134,7 +177,7 @@ public class AccountControllerImpl implements AccountController {
             ErrorResponse errorResponse = new ErrorResponse(accountList);
             return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
         } catch (Throwable e) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(-1, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

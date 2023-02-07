@@ -57,6 +57,16 @@ public class Account {
         return funds;
     }
 
+    public BigDecimal addFunds(BigDecimal amount) {
+        this.funds = this.funds.add(amount);
+        return this.funds;
+    }
+
+    public BigDecimal subtractFunds(BigDecimal amount) {
+        this.funds = this.funds.subtract(amount);
+        return this.funds;
+    }
+
     public void setFunds(BigDecimal funds) {
         this.funds = funds;
     }
