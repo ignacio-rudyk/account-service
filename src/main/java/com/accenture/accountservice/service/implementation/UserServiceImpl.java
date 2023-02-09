@@ -3,6 +3,8 @@ package com.accenture.accountservice.service.implementation;
 import com.accenture.accountservice.exception.AccountServiceException;
 import com.accenture.accountservice.model.ErrorResponse;
 import com.accenture.accountservice.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,6 +25,8 @@ public class UserServiceImpl implements UserService {
 
     @Value("${user.service.server.port}")
     private String userServicePort;
+
+    private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private static String DOMAIN = "http://localhost:";
 
@@ -48,6 +52,7 @@ public class UserServiceImpl implements UserService {
                 throw new AccountServiceException(errorResponse.getDesc(), errorResponse.getCode());
             }
         } catch (Throwable t) {
+            logger.error("[Error " + t.getClass() + "] " + t.getMessage());
             throw t;
         }
     }

@@ -1,16 +1,20 @@
 package com.accenture.accountservice.model.dto;
 
-public class WithdrawalOfMoney {
+import java.io.Serializable;
+
+public class WithdrawalOfMoneyDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String numberAccount;
 
     private String amount;
 
-    public WithdrawalOfMoney() {
+    public WithdrawalOfMoneyDTO() {
         this(null, null);
     }
 
-    public WithdrawalOfMoney(String numberAccount, String amount) {
+    public WithdrawalOfMoneyDTO(String numberAccount, String amount) {
         super();
         this.numberAccount = numberAccount;
         this.amount = amount;
@@ -30,5 +34,13 @@ public class WithdrawalOfMoney {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "WithdrawalOfMoneyDTO{" +
+                "numberAccount='" + numberAccount + '\'' +
+                ", amount='" + amount + '\'' +
+                '}';
     }
 }

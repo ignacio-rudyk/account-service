@@ -1,8 +1,8 @@
 package com.accenture.accountservice.controller;
 
 import com.accenture.accountservice.model.ErrorResponse;
-import com.accenture.accountservice.model.dto.SendingOfMoney;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
+import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 public interface AccountController {
 
     @PutMapping(value = "/addAmount")
-    ResponseEntity<ErrorResponse> addAmount(@RequestBody SendingOfMoney sendingOfMoney);
+    ResponseEntity<ErrorResponse> addAmount(@RequestBody SendingOfMoneyDTO sendingOfMoney);
 
     @PutMapping(value = "/subtractAmount")
-    ResponseEntity<ErrorResponse> subtractAmount(@RequestBody WithdrawalOfMoney withdrawalOfMoney);
+    ResponseEntity<ErrorResponse> subtractAmount(@RequestBody WithdrawalOfMoneyDTO withdrawalOfMoney);
 
     @PostMapping(value = "/createAccount/{userId}")
     ResponseEntity<ErrorResponse> createAccount(@PathVariable(name = "userId") Long userId);

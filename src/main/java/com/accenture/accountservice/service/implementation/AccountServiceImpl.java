@@ -7,12 +7,14 @@ import com.accenture.accountservice.exception.validation.AmountNegativeException
 import com.accenture.accountservice.exception.validation.AmountPositiveException;
 import com.accenture.accountservice.exception.validation.FieldNullException;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import com.accenture.accountservice.model.dto.SendingOfMoney;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
+import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
 import com.accenture.accountservice.model.entities.Account;
 import com.accenture.accountservice.service.AccountService;
 import com.accenture.accountservice.service.UserService;
 import org.dozer.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,10 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private UserService userService;
 
+    private Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     @Override
-    public SendingOfMoney addAmount(SendingOfMoney sendingOfMoney) throws AccountServiceException, AccountDAOException {
+    public SendingOfMoneyDTO addAmount(SendingOfMoneyDTO sendingOfMoney) throws AccountServiceException, AccountDAOException {
         try{
             BigDecimal amount = new BigDecimal(sendingOfMoney.getAmount());
             if(amount.compareTo(new BigDecimal(0)) <= 0) {
@@ -54,16 +57,19 @@ public class AccountServiceImpl implements AccountService {
             }
             throw new AccountInexistentException();
         } catch (DataAccessException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
             throw new AccountDAOException();
         } catch (AccountServiceException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
             throw e;
         } catch (Throwable t) {
+            logger.error("[Error " + t.getClass() + "] " + t.getMessage());
             throw t;
         }
     }
 
     @Override
-    public WithdrawalOfMoney subtractAmount(WithdrawalOfMoney withdrawalOfMoney) throws AccountServiceException, AccountDAOException {
+    public WithdrawalOfMoneyDTO subtractAmount(WithdrawalOfMoneyDTO withdrawalOfMoney) throws AccountServiceException, AccountDAOException {
         try{
             BigDecimal amount = new BigDecimal(withdrawalOfMoney.getAmount());
             if(amount.compareTo(new BigDecimal(0)) >= 0) {
@@ -81,10 +87,13 @@ public class AccountServiceImpl implements AccountService {
             }
             throw new AccountInexistentException();
         } catch (DataAccessException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
             throw new AccountDAOException();
         } catch (AccountServiceException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
             throw e;
         } catch (Throwable t) {
+            logger.error("[Error " + t.getClass() + "] " + t.getMessage());
             throw t;
         }
     }
@@ -100,8 +109,10 @@ public class AccountServiceImpl implements AccountService {
                 newAccount = accountDAO.save(newAccount);
                 return mapper.map(newAccount, AccountDTO.class);
             } catch (DataAccessException e) {
+                logger.error("[Error " + e.getClass() + "] " + e.getMessage());
                 throw new AccountDAOException(e.getMessage());
             } catch (Throwable t) {
+                logger.error("[Error " + t.getClass() + "] " + t.getMessage());
                 throw t;
             }
         } else {

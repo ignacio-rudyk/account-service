@@ -1,16 +1,20 @@
 package com.accenture.accountservice.model.dto;
 
-public class SendingOfMoney {
+import java.io.Serializable;
+
+public class SendingOfMoneyDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String cbuDestination;
 
     private String amount;
 
-    public SendingOfMoney(){
+    public SendingOfMoneyDTO(){
         this(null, null);
     }
 
-    public SendingOfMoney(String cbuDestination, String amount) {
+    public SendingOfMoneyDTO(String cbuDestination, String amount) {
         super();
         this.cbuDestination = cbuDestination;
         this.amount = amount;
@@ -32,4 +36,11 @@ public class SendingOfMoney {
         this.amount = amount;
     }
 
+    @Override
+    public String toString() {
+        return "SendingOfMoneyDTO{" +
+                "cbuDestination='" + cbuDestination + '\'' +
+                ", amount='" + amount + '\'' +
+                '}';
+    }
 }

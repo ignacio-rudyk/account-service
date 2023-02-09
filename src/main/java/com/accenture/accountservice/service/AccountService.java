@@ -3,16 +3,16 @@ package com.accenture.accountservice.service;
 import com.accenture.accountservice.exception.AccountDAOException;
 import com.accenture.accountservice.exception.AccountServiceException;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import com.accenture.accountservice.model.dto.SendingOfMoney;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoney;
+import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
+import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
 
 import java.util.List;
 
 public interface AccountService {
 
-    SendingOfMoney addAmount( SendingOfMoney sendingOfMoney) throws AccountServiceException, AccountDAOException;
+    SendingOfMoneyDTO addAmount(SendingOfMoneyDTO sendingOfMoney) throws AccountServiceException, AccountDAOException;
 
-    WithdrawalOfMoney subtractAmount( WithdrawalOfMoney withdrawalOfMoney) throws AccountServiceException, AccountDAOException;
+    WithdrawalOfMoneyDTO subtractAmount(WithdrawalOfMoneyDTO withdrawalOfMoney) throws AccountServiceException, AccountDAOException;
 
     AccountDTO createAccount(Long userId) throws AccountServiceException, AccountDAOException;
 
