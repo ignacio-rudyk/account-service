@@ -6,7 +6,6 @@ import com.accenture.accountservice.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,19 +22,16 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${user.service.server.port}")
-    private String userServicePort;
-
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private static String DOMAIN = "http://localhost:";
+    private static String DOMAIN = "http://user-service";
 
     private static String EXIST_USER_SERVICE = "/user/existUser/";
 
     @Override
     public Boolean existUser(Long userId) throws AccountServiceException {
         try{
-            String url = DOMAIN + userServicePort + EXIST_USER_SERVICE + userId;
+            String url = DOMAIN + EXIST_USER_SERVICE + userId;
             restTemplate.setMessageConverters(getJsonMessageConverters());
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));

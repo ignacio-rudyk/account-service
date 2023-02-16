@@ -6,8 +6,7 @@ import com.accenture.accountservice.exception.AccountServiceException;
 import com.accenture.accountservice.exception.ValidationException;
 import com.accenture.accountservice.model.ErrorResponse;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
+import com.accenture.accountservice.model.dto.MoneyOperationDTO;
 import com.accenture.accountservice.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ public class AccountControllerImpl implements AccountController {
     private Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     @Override
-    public ResponseEntity<ErrorResponse> addAmount(SendingOfMoneyDTO sendingOfMoney) {
+    public ResponseEntity<ErrorResponse> addAmount(MoneyOperationDTO sendingOfMoney) {
         logger.info("[Microservice:Account, Endpoint:addAmount] sending_of_money = " + sendingOfMoney);
         try{
             sendingOfMoney = accountService.addAmount(sendingOfMoney);
@@ -46,11 +45,11 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
-    public ResponseEntity<ErrorResponse> subtractAmount(WithdrawalOfMoneyDTO withdrawalOfMoney) {
-        logger.info("[Microservice:Account, Endpoint:subtractAccount] withdrawal_of_money = " + withdrawalOfMoney);
+    public ResponseEntity<ErrorResponse> subtractAmount(MoneyOperationDTO moneyOperation) {
+        logger.info("[Microservice:Account, Endpoint:subtractAccount] withdrawal_of_money = " + moneyOperation);
         try{
-            withdrawalOfMoney = accountService.subtractAmount(withdrawalOfMoney);
-            ErrorResponse errorResponse = new ErrorResponse(withdrawalOfMoney);
+            moneyOperation = accountService.subtractAmount(moneyOperation);
+            ErrorResponse errorResponse = new ErrorResponse(moneyOperation);
             return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
         } catch (ValidationException e) {
             logger.error("[Error " + e.getClass() + "] " + e.getMessage());
@@ -128,9 +127,44 @@ public class AccountControllerImpl implements AccountController {
             AccountDTO accountFound = accountService.findById(id);
             ErrorResponse errorResponse = new ErrorResponse(accountFound);
             return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
-        } catch (AccountInexistentException e) {
+        } catch (ValidationException e) {
             logger.error("[Error " + e.getClass() + "] " + e.getMessage());
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.NO_CONTENT);
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (AccountServiceException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Throwable e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<ErrorResponse> getAccountIdByCbu(String cbu) {
+        logger.info("[Microservice:Account, Endpoint:getAccountByCbu] cbu = " + cbu);
+        try{
+            Long accountIdFound = accountService.findAccountIdByCbu(cbu);
+            ErrorResponse errorResponse = new ErrorResponse(accountIdFound);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
+        } catch (ValidationException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);
+        } catch (AccountServiceException e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Throwable e) {
+            logger.error("[Error " + e.getClass() + "] " + e.getMessage());
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse(null, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<ErrorResponse> getAccountIdByNumberAccount(String numberAccount) {
+        logger.info("[Microservice:Account, Endpoint:getAccountByNumberAccount] numberAccount = " + numberAccount);
+        try{
+            Long accountIdFound = accountService.findAccountIdByNumberAccount(numberAccount);
+            ErrorResponse errorResponse = new ErrorResponse(accountIdFound);
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.OK);
         } catch (ValidationException e) {
             logger.error("[Error " + e.getClass() + "] " + e.getMessage());
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(e.getCode(), e.getMessage()),HttpStatus.BAD_REQUEST);

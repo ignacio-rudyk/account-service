@@ -7,8 +7,7 @@ import com.accenture.accountservice.exception.validation.AmountNegativeException
 import com.accenture.accountservice.exception.validation.AmountPositiveException;
 import com.accenture.accountservice.exception.validation.FieldNullException;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
+import com.accenture.accountservice.model.dto.MoneyOperationDTO;
 import com.accenture.accountservice.model.entities.Account;
 import com.accenture.accountservice.service.AccountService;
 import com.accenture.accountservice.service.UserService;
@@ -40,19 +39,19 @@ public class AccountServiceImpl implements AccountService {
     private Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     @Override
-    public SendingOfMoneyDTO addAmount(SendingOfMoneyDTO sendingOfMoney) throws AccountServiceException, AccountDAOException {
+    public MoneyOperationDTO addAmount(MoneyOperationDTO addingMoney) throws AccountServiceException, AccountDAOException {
         try{
-            BigDecimal amount = new BigDecimal(sendingOfMoney.getAmount());
+            BigDecimal amount = new BigDecimal(addingMoney.getAmount());
             if(amount.compareTo(new BigDecimal(0)) <= 0) {
                 throw new AmountNegativeException();
             }
-            Optional<Account> result = accountDAO.findByCbu(sendingOfMoney.getCbuDestination());
+            Optional<Account> result = accountDAO.findById(addingMoney.getAccountId());
             if(!result.isEmpty()){
                 Account account = result.get();
                 if(account.getEnabled()) {
                     account.addFunds(amount);
                     accountDAO.save(account);
-                    return sendingOfMoney;
+                    return addingMoney;
                 }
             }
             throw new AccountInexistentException();
@@ -69,20 +68,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public WithdrawalOfMoneyDTO subtractAmount(WithdrawalOfMoneyDTO withdrawalOfMoney) throws AccountServiceException, AccountDAOException {
+    public MoneyOperationDTO subtractAmount(MoneyOperationDTO moneyTheft) throws AccountServiceException, AccountDAOException {
         try{
-            BigDecimal amount = new BigDecimal(withdrawalOfMoney.getAmount());
+            BigDecimal amount = new BigDecimal(moneyTheft.getAmount());
             if(amount.compareTo(new BigDecimal(0)) >= 0) {
                 throw new AmountPositiveException();
             }
-            Optional<Account> result = accountDAO.findByNumberAccount(withdrawalOfMoney.getNumberAccount());
+            Optional<Account> result = accountDAO.findById(moneyTheft.getAccountId());
             if(!result.isEmpty()){
                 Account account = result.get();
                 if(account.getEnabled()) {
                     account.subtractFunds(amount.negate());
                     validateAccountData(account);
                     accountDAO.save(account);
-                    return withdrawalOfMoney;
+                    return moneyTheft;
                 }
             }
             throw new AccountInexistentException();
@@ -152,8 +151,34 @@ public class AccountServiceImpl implements AccountService {
             throw new FieldNullException();
         }
         Optional<Account> result = accountDAO.findById(id);
-        if(!result.isEmpty()){
+        if(!result.isEmpty() && result.get().getEnabled()){
             return mapper.map(result.get(), AccountDTO.class);
+        } else {
+            throw new AccountInexistentException();
+        }
+    }
+
+    @Override
+    public Long findAccountIdByCbu(String cbu) throws AccountServiceException {
+        if(cbu == null) {
+            throw new FieldNullException();
+        }
+        Optional<Account> result = accountDAO.findByCbu(cbu);
+        if(!result.isEmpty() && result.get().getEnabled()){
+            return result.get().getId();
+        } else {
+            throw new AccountInexistentException();
+        }
+    }
+
+    @Override
+    public Long findAccountIdByNumberAccount(String numberAccount) throws AccountServiceException {
+        if(numberAccount == null) {
+            throw new FieldNullException();
+        }
+        Optional<Account> result = accountDAO.findByNumberAccount(numberAccount);
+        if(!result.isEmpty() && result.get().getEnabled()){
+            return result.get().getId();
         } else {
             throw new AccountInexistentException();
         }

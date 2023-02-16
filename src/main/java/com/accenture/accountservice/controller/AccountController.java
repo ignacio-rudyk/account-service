@@ -1,8 +1,7 @@
 package com.accenture.accountservice.controller;
 
 import com.accenture.accountservice.model.ErrorResponse;
-import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
+import com.accenture.accountservice.model.dto.MoneyOperationDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 public interface AccountController {
 
     @PutMapping(value = "/addAmount")
-    ResponseEntity<ErrorResponse> addAmount(@RequestBody SendingOfMoneyDTO sendingOfMoney);
+    ResponseEntity<ErrorResponse> addAmount(@RequestBody MoneyOperationDTO moneyOperation);
 
     @PutMapping(value = "/subtractAmount")
-    ResponseEntity<ErrorResponse> subtractAmount(@RequestBody WithdrawalOfMoneyDTO withdrawalOfMoney);
+    ResponseEntity<ErrorResponse> subtractAmount(@RequestBody MoneyOperationDTO moneyOperation);
 
     @PostMapping(value = "/createAccount/{userId}")
     ResponseEntity<ErrorResponse> createAccount(@PathVariable(name = "userId") Long userId);
@@ -26,6 +25,12 @@ public interface AccountController {
 
     @GetMapping("/getAccount/{id}")
     ResponseEntity<ErrorResponse> getAccount(@PathVariable(name = "id") Long id);
+
+    @GetMapping("/getAccountIdByCbu/{cbu}")
+    ResponseEntity<ErrorResponse> getAccountIdByCbu(@PathVariable(name = "cbu") String cbu);
+
+    @GetMapping("/getAccountIdByNumberAccount/{numberAccount}")
+    ResponseEntity<ErrorResponse> getAccountIdByNumberAccount(@PathVariable(name = "numberAccount") String numberAccount);
 
     @GetMapping("/existAccount/{id}")
     ResponseEntity<ErrorResponse> existAccount(@PathVariable(name = "id") Long id);

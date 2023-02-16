@@ -3,16 +3,15 @@ package com.accenture.accountservice.service;
 import com.accenture.accountservice.exception.AccountDAOException;
 import com.accenture.accountservice.exception.AccountServiceException;
 import com.accenture.accountservice.model.dto.AccountDTO;
-import com.accenture.accountservice.model.dto.SendingOfMoneyDTO;
-import com.accenture.accountservice.model.dto.WithdrawalOfMoneyDTO;
+import com.accenture.accountservice.model.dto.MoneyOperationDTO;
 
 import java.util.List;
 
 public interface AccountService {
 
-    SendingOfMoneyDTO addAmount(SendingOfMoneyDTO sendingOfMoney) throws AccountServiceException, AccountDAOException;
+    MoneyOperationDTO addAmount(MoneyOperationDTO addingMoney) throws AccountServiceException, AccountDAOException;
 
-    WithdrawalOfMoneyDTO subtractAmount(WithdrawalOfMoneyDTO withdrawalOfMoney) throws AccountServiceException, AccountDAOException;
+    MoneyOperationDTO subtractAmount(MoneyOperationDTO moneyTheft) throws AccountServiceException, AccountDAOException;
 
     AccountDTO createAccount(Long userId) throws AccountServiceException, AccountDAOException;
 
@@ -21,6 +20,10 @@ public interface AccountService {
     List<AccountDTO> deleteAccountsByUserId(Long userId) throws AccountServiceException;
 
     AccountDTO findById(Long id) throws AccountServiceException;
+
+    Long findAccountIdByCbu(String cbu) throws AccountServiceException;
+
+    Long findAccountIdByNumberAccount(String numberAccount) throws AccountServiceException;
 
     Boolean existsById(Long id) throws AccountServiceException;
 
